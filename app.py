@@ -64,8 +64,7 @@ def main():
         }
         </style>
         <div class="container">
-            <img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fpitchbook.com%2Fprofiles%2Fcompany%2F483491-71&psig=AOvVaw11-fqMCDWEgyXU36FbCiSL&ust=1744835134052000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCLjPvcXv2owDFQAAAAAdAAAAABAE
-" alt="Hakkoda Logo">
+            <img src="https://tercera.io/wp-content/uploads/2025/04/Hakkoda_IBM.jpg" alt="Hakkoda Logo">
 
         </div>
         """,
