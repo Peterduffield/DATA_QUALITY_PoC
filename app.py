@@ -60,7 +60,7 @@ def main():
             justify-content: center;
         }
         .container img {
-            transform: scale(0.5);
+            transform: scale(0.25);
         }
         </style>
         <div class="container">
