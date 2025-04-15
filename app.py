@@ -66,7 +66,7 @@ def main():
             justify-content: center;
         }
         .container img {
-            transform: scale(1.5);
+            transform: scale(5);
         }
         </style>
         <div class="container">
@@ -86,7 +86,7 @@ def main():
             justify-content: center;
         }
         .container img {
-            transform: scale(1.5);
+            transform: scale(5);
         }
         </style>
         <div class="container">
