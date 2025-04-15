@@ -53,7 +53,7 @@ def main():
     )
 
     st.subheader("Data Checks by table")
-    selected_table = st.selectbox("Select a Table:")
+    selected_table = st.selectbox("Select a Table:", "SALESFORCE_DONORS_PATIENTS_DATASET")
     st.divider()
 
     st.markdown(
