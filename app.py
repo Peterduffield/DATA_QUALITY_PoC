@@ -57,7 +57,6 @@ def main():
         selected_table = st.selectbox("Select a Table:", "SALESFORCE_DONORS_PATIENTS_DATASET")
         st.divider()
     with dq_by_db:
-        st.write("Under Construction")
         st.markdown(
         """
         <style>
@@ -66,7 +65,7 @@ def main():
             justify-content: center;
         }
         .container img {
-            transform: scale(5);
+            transform: scale(10);
         }
         </style>
         <div class="container">
@@ -86,11 +85,11 @@ def main():
             justify-content: center;
         }
         .container img {
-            transform: scale(5);
+            transform: scale(10);
         }
         </style>
         <div class="container">
-            <img src="https://t4.ftcdn.net/jpg/00/89/02/67/360_F_89026793_eyw5a7WCQE0y1RHsizu41uhj7YStgvAA.jpg" alt="Hakkoda Logo">
+            <img src="https://pngimg.com/d/under_construction_PNG18.png" alt="Hakkoda Logo">
 
         </div>
         """,
