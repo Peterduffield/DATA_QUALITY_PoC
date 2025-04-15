@@ -46,10 +46,32 @@ def main():
         }
         </style>
         <div class="title-container">
-            <h1>Data Governance</h1>
+            <h1>Data Quality Overview</h1>
         </div>
         """,
         unsafe_allow_html=True
     )
+
+    st.markdown(
+        """
+        <style>
+        .container {
+            display: flex;
+            justify-content: center;
+        }
+        .container img {
+            transform: scale(0.5);
+        }
+        </style>
+        <div class="container">
+            <img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fpitchbook.com%2Fprofiles%2Fcompany%2F483491-71&psig=AOvVaw11-fqMCDWEgyXU36FbCiSL&ust=1744835134052000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCLjPvcXv2owDFQAAAAAdAAAAABAE
+" alt="Hakkoda Logo">
+
+        </div>
+        """,
+        unsafe_allow_html=True,
+    ) 
+
+
 if __name__ == "__main__":
     main()
