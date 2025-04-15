@@ -60,9 +60,9 @@ def main():
         with col1:
             st.write(":clock1: Last Updated")
         with col2:
-            st.write("Number of Columns Tested")
+            st.write(":page_facing_up: Columns Tested")
         with col3:
-            st.write("Number Data Quality Rules")
+            st.write(":straight_ruler: Data Quality Rules")
 
 
     with dq_by_db:
