@@ -70,7 +70,7 @@ def main():
         }
         </style>
         <div class="container">
-            <img src="https://t4.ftcdn.net/jpg/00/89/02/67/360_F_89026793_eyw5a7WCQE0y1RHsizu41uhj7YStgvAA.jpg" alt="Hakkoda Logo">
+            <img src="https://pngimg.com/d/under_construction_PNG18.png" alt="Hakkoda Logo">
 
         </div>
         """,
