@@ -58,11 +58,11 @@ def main():
         st.divider()
         col1, col2, col3 = st.columns(3, border = True)
         with col1:
-            st.write("Last Updated")
+            st.write(":clock1: Last Updated")
         with col2:
-            st.write(" Number of Columns Tested")
+            st.write("Number of Columns Tested")
         with col3:
-            st.write("NUmber Data Quality Rules")
+            st.write("Number Data Quality Rules")
 
 
     with dq_by_db:
