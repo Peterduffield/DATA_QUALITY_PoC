@@ -1,0 +1,8 @@
+streamlit>1.24.1
+pytz
+pandas
+snowflake-connector-python>3.0.0
+snowflake-snowpark-python
+sqlparse
+matplotlib
+plotly
