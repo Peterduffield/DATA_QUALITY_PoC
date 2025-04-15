@@ -58,11 +58,11 @@ def main():
         st.divider()
         col1, col2, col3 = st.columns(3, border = True)
         with col1:
-            st.write(":clock1: Last Updated")
-        with col2:
             st.write(":page_facing_up: Columns Tested")
-        with col3:
+        with col2:
             st.write(":straight_ruler: Data Quality Rules")
+        with col3:
+            st.write(":white_check_mark: Passed Data Quality Rules")
 
 
     with dq_by_db:
