@@ -56,6 +56,15 @@ def main():
     with dq_by_table:
         selected_table = st.selectbox("Select a Table:", "SALESFORCE_DONORS_PATIENTS_DATASET")
         st.divider()
+        col1, col2, col3 = st.columns(3, border = True)
+        with col1:
+            st.write("Last Updated")
+        with col2:
+            st.write("# of Columns Tested")
+        with col3:
+            st.write("# Data Quality Rules")
+
+
     with dq_by_db:
         st.markdown(
         """
