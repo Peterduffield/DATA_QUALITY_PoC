@@ -52,6 +52,10 @@ def main():
         unsafe_allow_html=True
     )
 
+    st.subheader("Data Checks by table")
+    selected_table = st.selectbox("Select a Table:")
+    st.divider()
+
     st.markdown(
         """
         <style>
@@ -60,7 +64,7 @@ def main():
             justify-content: center;
         }
         .container img {
-            transform: scale(0.25);
+            transform: scale(0.2);
         }
         </style>
         <div class="container">
