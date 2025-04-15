@@ -53,8 +53,11 @@ def main():
     )
 
     dq_by_table, dq_by_db, dq_by_data_soource =  st.tabs(['Data Quality by Table', 'Data Quality by DataBase', 'Data Quality by Data Source'])
-    selected_table = st.selectbox("Select a Table:", "SALESFORCE_DONORS_PATIENTS_DATASET")
-    st.divider()
+    if dq_by_table:
+        selected_table = st.selectbox("Select a Table:", "SALESFORCE_DONORS_PATIENTS_DATASET")
+        st.divider()
+
+
 
     st.markdown(
         """
