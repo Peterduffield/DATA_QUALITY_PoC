@@ -53,10 +53,10 @@ def main():
     )
 
     dq_by_table, dq_by_db, dq_by_data_soource =  st.tabs(['Data Quality by Table', 'Data Quality by DataBase', 'Data Quality by Data Source'])
-    if dq_by_table:
+    with dq_by_table:
         selected_table = st.selectbox("Select a Table:", "SALESFORCE_DONORS_PATIENTS_DATASET")
         st.divider()
-    if dq_by_db:
+    with dq_by_db:
         st.write("Under Construction")
         st.markdown(
         """
@@ -76,6 +76,26 @@ def main():
         """,
         unsafe_allow_html=True,
         )
+    with dq_by_data_soource:
+        st.write("Under Construction")
+        st.markdown(
+        """
+        <style>
+        .container {
+            display: flex;
+            justify-content: center;
+        }
+        .container img {
+            transform: scale(0.2);
+        }
+        </style>
+        <div class="container">
+            <img src="https://t4.ftcdn.net/jpg/00/89/02/67/360_F_89026793_eyw5a7WCQE0y1RHsizu41uhj7YStgvAA.jpg" alt="Hakkoda Logo">
+
+        </div>
+        """,
+        unsafe_allow_html=True,
+        )      
 
     st.markdown(
         """
