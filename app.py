@@ -56,8 +56,26 @@ def main():
     if dq_by_table:
         selected_table = st.selectbox("Select a Table:", "SALESFORCE_DONORS_PATIENTS_DATASET")
         st.divider()
+    if dq_by_db:
+        st.write("Under Construction")
+        st.markdown(
+        """
+        <style>
+        .container {
+            display: flex;
+            justify-content: center;
+        }
+        .container img {
+            transform: scale(0.2);
+        }
+        </style>
+        <div class="container">
+            <img src="https://t4.ftcdn.net/jpg/00/89/02/67/360_F_89026793_eyw5a7WCQE0y1RHsizu41uhj7YStgvAA.jpg" alt="Hakkoda Logo">
 
-
+        </div>
+        """,
+        unsafe_allow_html=True,
+        )
 
     st.markdown(
         """
