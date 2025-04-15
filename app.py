@@ -60,9 +60,9 @@ def main():
         with col1:
             st.write("Last Updated")
         with col2:
-            st.write("# of Columns Tested")
+            st.write(" Number of Columns Tested")
         with col3:
-            st.write("# Data Quality Rules")
+            st.write("NUmber Data Quality Rules")
 
 
     with dq_by_db:
