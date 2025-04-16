@@ -95,9 +95,9 @@ def main():
         selected_table = st.selectbox("Select a Table:", "SALESFORCE_DONORS_PATIENTS_DATASET")
         if selected_table:
             dq_meta_table = dq_meta_source_table[dq_meta_source_table["TABLE_NAME"] == selected_table]
-            if st.button("Run Data Quality Checks"):
-                dq_result_table = evaluate_rules(dq_meta_source_table.copy(), session)
-                st.dataframe(dq_result_table)            
+            #if st.button("Run Data Quality Checks"):
+              #  dq_result_table = evaluate_rules(dq_meta_table.copy(), session)
+              #  st.dataframe(dq_result_table)            
 
 
             st.divider()
@@ -130,35 +130,33 @@ def main():
             with st.popover("View Data Quality Tests Table", use_container_width=True):
                 st.dataframe(dq_meta_table, hide_index=True)
 
-            if st.button("Update Snowflake"):
-                # Escape single quotes to prevent SQL errors
-                def safe_str(value):
-                    return value.replace("'", "''") if isinstance(value, str) else value
-
-                # Loop through each row and construct the MERGE query
-                for index, row in dq_result_table.iterrows():
-                    update_query = f"""
-                        MERGE INTO DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES AS target
-                        USING (SELECT {row['RULE_ID']} AS RULE_ID) AS source
-                        ON target.RULE_ID = source.RULE_ID
-                        WHEN MATCHED THEN
-                            UPDATE SET 
-                                RESULT = '{safe_str(row['RESULT'])}',
-                                STATUS = '{safe_str(row['STATUS'])}',
-                                LAST_RUN = '{safe_str(row['LAST_RUN'])}'
-                        WHEN NOT MATCHED THEN
-                            INSERT (RULE_ID, RESULT, STATUS, LAST_RUN)
-                            VALUES ({row['RULE_ID']}, '{safe_str(row['RESULT'])}', '{safe_str(row['STATUS'])}', '{safe_str(row['LAST_RUN'])}');
-                    """
-                    
-                    # Execute the update query in Snowflake
-                    try:
-                        session.sql(update_query).collect()
-                        print(f"Successfully upserted RULE_ID: {row['RULE_ID']}")
-                    except Exception as e:
-                        print(f"Error executing upsert for RULE_ID {row['RULE_ID']}: {e}")
+            if st.button("Run Data Quality Checks"):
+                # Call the function to evaluate rules and get the results
+                dq_result_table = evaluate_rules(dq_meta_table.copy(), session)
                 
-                st.success("Snowflake table updated successfully!")
+                # Display the result in the Streamlit app
+                st.dataframe(dq_result_table)
+
+                # Optionally: Update the table in Snowflake (you can add this step in the same block or after)
+                try:
+                    for idx, row in dq_result_table.iterrows():
+                        update_query = f"""
+                            MERGE INTO DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES AS target
+                            USING (SELECT {row['RULE_ID']} AS RULE_ID) AS source
+                            ON target.RULE_ID = source.RULE_ID
+                            WHEN MATCHED THEN
+                                UPDATE SET 
+                                    RESULT = '{safe_str(row['RESULT'])}',
+                                    STATUS = '{safe_str(row['STATUS'])}',
+                                    LAST_RUN = '{safe_str(row['LAST_RUN'])}'
+                            WHEN NOT MATCHED THEN
+                                INSERT (RULE_ID, RESULT, STATUS, LAST_RUN)
+                                VALUES ({row['RULE_ID']}, '{safe_str(row['RESULT'])}', '{safe_str(row['STATUS'])}', '{safe_str(row['LAST_RUN'])}');
+                        """
+                        session.sql(update_query).collect()  # Executing the query in Snowflake
+                    st.success("Snowflake table updated successfully!")
+                except Exception as e:
+                    st.error(f"Error updating Snowflake table: {e}")
 
 
     with dq_by_db:
