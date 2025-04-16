@@ -133,9 +133,17 @@ def main():
                     unsafe_allow_html=True)                 
             col4,col5,col6 = st.columns(3, border = True)
             with col4:  
-                st.write("Data Quality Status")
-                passed_tests_counts = dq_meta_table.groupby("STATUS").size()
-                st.bar_chart(passed_tests_counts,use_container_width=True,horizontal=True)               
+                total_tests = dq_meta_table.shape[0]
+                passed_tests = dq_meta_table[dq_meta_table['STATUS'] == 'PASS'].shape[0]
+                percent_passed = (passed_tests / total_tests) * 100
+                # Display the result as markdown
+                st.markdown(f"""
+                    <div style='text-align: center;'>
+                        <h3>Data Quality Check Results</h3>
+                        <h2>Percentage Passed: {percent_passed:.2f}%</h2>
+                    </div>
+                """, unsafe_allow_html=True)
+             
             with col5:
                 st.write("Test Status by Rule Category")
                 passed_tests_counts = dq_meta_table.groupby(["RULE_CATEGORY","STATUS"]).size().unstack(fill_value=0)
