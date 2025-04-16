@@ -23,7 +23,12 @@ session = create_snowflake_session()
 # Run SQL query
 dq_meta_source_table = session.sql("SELECT * FROM DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES").to_pandas()
 
+from datetime import datetime
+
 def evaluate_rules(dq_meta_table: pd.DataFrame, session: Session) -> pd.DataFrame:
+    # Get the current timestamp to use for "LAST_RUN"
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
     for idx, row in dq_meta_table.iterrows():
         rule_sql = row["RULE_SQL"]
         result = None
@@ -49,10 +54,13 @@ def evaluate_rules(dq_meta_table: pd.DataFrame, session: Session) -> pd.DataFram
             result = f"Error: {str(e)}"
             status = "ERROR"
 
+        # Update the 'RESULT', 'STATUS', and 'LAST_RUN' columns
         dq_meta_table.at[idx, "RESULT"] = result
         dq_meta_table.at[idx, "STATUS"] = status
+        dq_meta_table.at[idx, "LAST_RUN"] = current_time
 
     return dq_meta_table
+
 
 
 
