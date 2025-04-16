@@ -132,7 +132,7 @@ def main():
             with st.popover("View Data Quality Tests Table", use_container_width=True):
                 st.dataframe(dq_meta_table, hide_index=True)
 
-            if st.button("Run Data Quality Checks"):
+            if st.button("Run Data Quality Checks", use_container_width=True):
                 # Call the function to evaluate rules and get the results
                 dq_result_table = evaluate_rules(dq_meta_table.copy(), session)
                 
