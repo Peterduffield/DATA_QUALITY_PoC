@@ -130,6 +130,36 @@ def main():
             with st.popover("View Data Quality Tests Table", use_container_width=True):
                 st.dataframe(dq_meta_table, hide_index=True)
 
+            if st.button("Update Snowflake"):
+                # Escape single quotes to prevent SQL errors
+                def safe_str(value):
+                    return value.replace("'", "''") if isinstance(value, str) else value
+
+                # Loop through each row and construct the MERGE query
+                for index, row in dq_result_table.iterrows():
+                    update_query = f"""
+                        MERGE INTO DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES AS target
+                        USING (SELECT {row['RULE_ID']} AS RULE_ID) AS source
+                        ON target.RULE_ID = source.RULE_ID
+                        WHEN MATCHED THEN
+                            UPDATE SET 
+                                RESULT = '{safe_str(row['RESULT'])}',
+                                STATUS = '{safe_str(row['STATUS'])}',
+                                LAST_RUN = '{safe_str(row['LAST_RUN'])}'
+                        WHEN NOT MATCHED THEN
+                            INSERT (RULE_ID, RESULT, STATUS, LAST_RUN)
+                            VALUES ({row['RULE_ID']}, '{safe_str(row['RESULT'])}', '{safe_str(row['STATUS'])}', '{safe_str(row['LAST_RUN'])}');
+                    """
+                    
+                    # Execute the update query in Snowflake
+                    try:
+                        session.sql(update_query).collect()
+                        print(f"Successfully upserted RULE_ID: {row['RULE_ID']}")
+                    except Exception as e:
+                        print(f"Error executing upsert for RULE_ID {row['RULE_ID']}: {e}")
+                
+                st.success("Snowflake table updated successfully!")
+
 
     with dq_by_db:
         st.markdown(
