@@ -27,14 +27,8 @@ from datetime import datetime
 
 from datetime import datetime
 
-from datetime import datetime
-from snowflake.snowpark import Session
-
-from datetime import datetime
-import pandas as pd
-from snowflake.snowpark import Session
-
-def evaluate_rules(dq_meta_table: pd.DataFrame) -> pd.DataFrame:
+def evaluate_rules(dq_meta_table: pd.DataFrame, session: Session) -> pd.DataFrame:
+    # Get the current timestamp to use for "LAST_RUN"
     current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
     for idx, row in dq_meta_table.iterrows():
@@ -62,14 +56,12 @@ def evaluate_rules(dq_meta_table: pd.DataFrame) -> pd.DataFrame:
             result = f"Error: {str(e)}"
             status = "ERROR"
 
-        # Update the 'RESULT', 'STATUS', and 'LAST_RUN' columns in the DataFrame
+        # Update the 'RESULT', 'STATUS', and 'LAST_RUN' columns
         dq_meta_table.at[idx, "RESULT"] = result
         dq_meta_table.at[idx, "STATUS"] = status
         dq_meta_table.at[idx, "LAST_RUN"] = current_time
 
     return dq_meta_table
-
-
 
 
 
