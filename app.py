@@ -136,13 +136,7 @@ def main():
                 st.write(":white_check_mark: Passed Data Quality Tests")
                 passed_tests_counts = dq_meta_table.groupby(["RULE_CATEGORY","STATUS"]).size().unstack(fill_value=0)
                 st.bar_chart(passed_tests_counts,use_container_width=True, color=["#5dade2", "#a9cce3"],horizontal=True)
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <h2>{passed_tests}</h2>
-                    </div>
-                    """,
-                    unsafe_allow_html=True) 
+
 
             with st.popover("View Data Quality Tests Table", use_container_width=True):
                 st.dataframe(dq_meta_table, hide_index=True)
