@@ -141,7 +141,7 @@ def main():
                 st.write("")
                 st.markdown(f"""
                     <div style='text-align: center;'>
-                        <h2 style="margin-bottom: 5px;">{percent_passed:.2f}%</h2>
+                        <h2 style="margin-bottom: 1px;">{percent_passed:.2f}%</h2>
                         <h5 style="margin-top: 0px; margin-bottom: 1px;">Passed</h5>
                         <h5 style="margin-top: 0px; margin-bottom: 1px;">{passed_tests}/{total_tests}</h5>
                     </div>
