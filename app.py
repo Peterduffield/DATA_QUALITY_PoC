@@ -57,7 +57,8 @@ def main():
             col1, col2, col3 = st.columns(3, border = True)
             with col1:
                 st.write(":page_facing_up: Columns Tested")
-
+                columns_tested = dq_meta_table['COLUMN_TESTED'].nunique()
+                st.markdown(f"#### {columns_tested}", unsafe_allow_html=True) 
             with col2:
                 st.write(":straight_ruler: Data Quality Rules")
             with col3:
