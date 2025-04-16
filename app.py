@@ -62,7 +62,9 @@ def evaluate_rules(dq_meta_table: pd.DataFrame, session: Session) -> pd.DataFram
         dq_meta_table.at[idx, "LAST_RUN"] = current_time
 
     return dq_meta_table
-
+def safe_str(value):
+    """Escape single quotes in strings to prevent SQL errors."""
+    return value.replace("'", "''") if isinstance(value, str) else value
 
 
 
