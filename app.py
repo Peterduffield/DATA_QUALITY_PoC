@@ -61,16 +61,28 @@ def main():
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <h4>{columns_tested}</h4>
+                        <h2>{columns_tested}</h2>
                     </div>
                     """,
                     unsafe_allow_html=True)                
             with col2:
                 st.write(":straight_ruler: Data Quality Rules")
+                rules_tested = dq_meta_table['RULE_NAME'].nunique()
+                st.markdown(
+                    f"""
+                    <div style='text-align: center;'>
+                        <h2>{rules_tested}</h2>
+                    </div>
+                    """,
+                    unsafe_allow_html=True)                
             with col3:
                 st.write(":white_check_mark: Passed Data Quality Rules")
+
+
             col4,col5,col6 = st.columns(3, border = True)
             st.dataframe(dq_meta_table)
+
+            
     with dq_by_db:
         st.markdown(
         """
