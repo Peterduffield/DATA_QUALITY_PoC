@@ -126,9 +126,18 @@ def main():
                     unsafe_allow_html=True)                
             with col3:
                 st.write(":white_check_mark: Passed Data Quality Rules")
-
-
+                passed_tests = dq_meta_table['STATUS'].nunique()
+                st.markdown(
+                    f"""
+                    <div style='text-align: center;'>
+                        <h2>{passed_tests}</h2>
+                    </div>
+                    """,
+                    unsafe_allow_html=True) 
+                
             col4,col5,col6 = st.columns(3, border = True)
+
+
             with st.popover("View Data Quality Tests Table", use_container_width=True):
                 st.dataframe(dq_meta_table, hide_index=True)
 
@@ -136,9 +145,6 @@ def main():
                 # Call the function to evaluate rules and get the results
                 dq_result_table = evaluate_rules(dq_meta_table.copy(), session)
                 
-                # Display the result in the Streamlit app
-                st.dataframe(dq_result_table)
-
                 # Optionally: Update the table in Snowflake (you can add this step in the same block or after)
                 try:
                     for idx, row in dq_result_table.iterrows():
