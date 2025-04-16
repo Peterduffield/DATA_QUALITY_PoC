@@ -138,7 +138,8 @@ def main():
             col4,col5,col6 = st.columns(3, border = True)
             with col4:  
                 st.write(":white_check_mark: Passed Data Quality Tests")
-                passed_tests = dq_meta_table[dq_meta_table['STATUS'] == 'PASS'].shape[0]
+                passed_tests_counts = dq_meta_table.groupby(["RULE_CATEGORY","STATUS"]).size().unstack(fill_value=0)
+                st.barchart(passed_tests_counts,use_container_width=True, color=["#5dade2", "#a9cce3"],horizontal=True)
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
