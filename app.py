@@ -21,7 +21,7 @@ def create_snowflake_session():
 session = create_snowflake_session()
 
 # Run SQL query
-dq_meta_table = session.sql("SELECT * FROM DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES").to_pandas()
+dq_meta_source_table = session.sql("SELECT * FROM DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES").to_pandas()
 
 
 def main():
@@ -49,18 +49,21 @@ def main():
 
     dq_by_table, dq_by_db, dq_by_data_soource =  st.tabs(['Data Quality by Table', 'Data Quality by DataBase', 'Data Quality by Data Source'])
     with dq_by_table:
+        dq_meta_table = dq_meta_source_table
         selected_table = st.selectbox("Select a Table:", "SALESFORCE_DONORS_PATIENTS_DATASET")
-        st.divider()
-        col1, col2, col3 = st.columns(3, border = True)
-        with col1:
-            st.write(":page_facing_up: Columns Tested")
+        if selected_table:
+            dq_meta_table = dq_meta_source_table[dq_meta_source_table[""]]
+            st.divider()
+            col1, col2, col3 = st.columns(3, border = True)
+            with col1:
+                st.write(":page_facing_up: Columns Tested")
 
-        with col2:
-            st.write(":straight_ruler: Data Quality Rules")
-        with col3:
-            st.write(":white_check_mark: Passed Data Quality Rules")
-        col4,col5,col6 = st.columns(3, border = True)
-        st.dataframe(dq_meta_table)
+            with col2:
+                st.write(":straight_ruler: Data Quality Rules")
+            with col3:
+                st.write(":white_check_mark: Passed Data Quality Rules")
+            col4,col5,col6 = st.columns(3, border = True)
+            st.dataframe(dq_meta_table)
     with dq_by_db:
         st.markdown(
         """
