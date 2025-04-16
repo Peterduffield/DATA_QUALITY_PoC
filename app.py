@@ -25,6 +25,8 @@ dq_meta_source_table = session.sql("SELECT * FROM DATA_GOV_POC.DATA_QUALITY_POC.
 
 from datetime import datetime
 
+from datetime import datetime
+
 def evaluate_rules(dq_meta_table: pd.DataFrame, session: Session) -> pd.DataFrame:
     # Get the current timestamp to use for "LAST_RUN"
     current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -40,9 +42,9 @@ def evaluate_rules(dq_meta_table: pd.DataFrame, session: Session) -> pd.DataFram
             if not result_df.empty:
                 result = result_df.iloc[0, 0]
 
-                # Optional: Evaluate against threshold
-                if "THRESHOLD_PERCENT" in row and pd.notna(row["THRESHOLD_PERCENT"]):
-                    threshold = float(row["THRESHOLD_PERCENT"])
+                # Evaluate against ACCEPTED_THRESHOLD_PCT column
+                if "ACCEPTED_THRESHOLD_PCT" in row and pd.notna(row["ACCEPTED_THRESHOLD_PCT"]):
+                    threshold = float(row["ACCEPTED_THRESHOLD_PCT"])
                     status = "PASS" if float(result) <= threshold else "FAIL"
                 else:
                     status = "PASS"  # Default if no threshold
