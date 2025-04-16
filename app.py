@@ -126,7 +126,7 @@ def main():
                     unsafe_allow_html=True)                
             with col3:
                 st.write(":white_check_mark: passed data quality rules")
-                passed_tests = dq_meta_table[dq_meta_table['status'] == 'pass'].shape[0]
+                passed_tests = dq_meta_table[dq_meta_table['STATUS'] == 'pass'].shape[0]
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
