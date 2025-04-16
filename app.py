@@ -52,7 +52,7 @@ def main():
         dq_meta_table = dq_meta_source_table
         selected_table = st.selectbox("Select a Table:", "SALESFORCE_DONORS_PATIENTS_DATASET")
         if selected_table:
-            dq_meta_table = dq_meta_source_table[dq_meta_source_table[""]]
+            dq_meta_table = dq_meta_source_table[dq_meta_source_table["TABLE_NAME"] == selected_table]
             st.divider()
             col1, col2, col3 = st.columns(3, border = True)
             with col1:
