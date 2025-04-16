@@ -135,11 +135,11 @@ def main():
             with col4:  
                 st.write("Test Status by Rule Category")
                 passed_tests_counts = dq_meta_table.groupby(["RULE_CATEGORY","STATUS"]).size().unstack(fill_value=0)
-                st.bar_chart(passed_tests_counts,use_container_width=True, color=["#5dade2", "#a9cce3"],horizontal=True)
+                st.bar_chart(passed_tests_counts,use_container_width=True, color=["#f06f6f", "#7fd787"],horizontal=True)
 
                 st.write("Test Status by Column")
                 passed_tests_counts = dq_meta_table.groupby(["COLUMN_TESTED","STATUS"]).size().unstack(fill_value=0)
-                st.bar_chart(passed_tests_counts,use_container_width=True, color=["#7fd787", "#f06f6f"],horizontal=True)
+                st.bar_chart(passed_tests_counts,use_container_width=True, color=["#f06f6f", "#7fd787"],horizontal=True)
 
             with st.popover("View Data Quality Tests Table", use_container_width=True):
                 st.dataframe(dq_meta_table, hide_index=True)
