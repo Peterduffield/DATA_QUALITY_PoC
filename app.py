@@ -81,7 +81,7 @@ def main():
 
             col4,col5,col6 = st.columns(3, border = True)
             with st.popover("View Data Quality Tests Table", use_container_width=True):
-                st.dataframe(dq_meta_table, hideindex=True)
+                st.dataframe(dq_meta_table, hide_index=True)
 
 
     with dq_by_db:
