@@ -75,7 +75,7 @@ def evaluate_rules(dq_meta_table: pd.DataFrame, session: Session) -> pd.DataFram
             # Create SQL update statement for the current row
             update_sql = f"""
             UPDATE DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES
-            SET RESULT = '{result}', STATUS = '{status}', LAST_RUN = '{last_run}'
+            SET RESULT = {result}, STATUS = {status}, LAST_RUN = {last_run}
             WHERE RULE_ID = {rule_id}
             """
             # Execute the SQL statement
