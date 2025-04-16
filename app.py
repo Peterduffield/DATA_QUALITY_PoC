@@ -137,10 +137,11 @@ def main():
                 passed_tests = dq_meta_table[dq_meta_table['STATUS'] == 'PASS'].shape[0]
                 percent_passed = (passed_tests / total_tests) * 100
                 # Display the result as markdown
+                st.write("Data Quality Status")
                 st.markdown(f"""
                     <div style='text-align: center;'>
-                        <h3>Data Quality Check Results</h3>
-                        <h2>Percentage Passed: {percent_passed:.2f}%</h2>
+                        <h2>{percent_passed:.2f}%</h2>
+                        <h4>Passed</h4>
                     </div>
                 """, unsafe_allow_html=True)
              
