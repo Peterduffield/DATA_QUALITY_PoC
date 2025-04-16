@@ -125,7 +125,18 @@ def main():
                     """,
                     unsafe_allow_html=True)                
             with col3:
-                st.write(":white_check_mark: Passed Data Quality Rules")
+                st.write(":clock1: Last Updated")
+                last_updated = dq_meta_table['LAST_RUN'].max()
+                st.markdown(
+                    f"""
+                    <div style='text-align: center;'>
+                        <h2>{last_updated}</h2>
+                    </div>
+                    """,
+                    unsafe_allow_html=True)                 
+            col4,col5,col6 = st.columns(3, border = True)
+            with col4:  
+                st.write(":white_check_mark: Passed Data Quality Tests")
                 passed_tests = dq_meta_table[dq_meta_table['STATUS'] == 'PASS'].shape[0]
                 st.markdown(
                     f"""
@@ -134,9 +145,6 @@ def main():
                     </div>
                     """,
                     unsafe_allow_html=True) 
-                
-            col4,col5,col6 = st.columns(3, border = True)
-
 
             with st.popover("View Data Quality Tests Table", use_container_width=True):
                 st.dataframe(dq_meta_table, hide_index=True)
