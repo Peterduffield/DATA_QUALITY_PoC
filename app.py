@@ -58,7 +58,13 @@ def main():
             with col1:
                 st.write(":page_facing_up: Columns Tested")
                 columns_tested = dq_meta_table['COLUMN_TESTED'].nunique()
-                st.markdown(f"#### {columns_tested}", unsafe_allow_html=True) 
+                st.markdown(
+                    f"""
+                    <div style='text-align: center;'>
+                        <h4>{columns_tested}</h4>
+                    </div>
+                    """,
+                    unsafe_allow_html=True)                
             with col2:
                 st.write(":straight_ruler: Data Quality Rules")
             with col3:
