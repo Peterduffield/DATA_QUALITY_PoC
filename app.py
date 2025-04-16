@@ -125,15 +125,15 @@ def main():
                     """,
                     unsafe_allow_html=True)                
             with col3:
-                st.write(":white_check_mark: Passed Data Quality Rules")
-                passed_tests = dq_meta_table['STATUS'].nunique()
+                st.write(":white_check_mark: passed data quality rules")
+                passed_tests = dq_meta_table[dq_meta_table['status'] == 'pass'].shape[0]
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
                         <h2>{passed_tests}</h2>
                     </div>
                     """,
-                    unsafe_allow_html=True) 
+                    unsafe_allow_html=true) 
                 
             col4,col5,col6 = st.columns(3, border = True)
 
