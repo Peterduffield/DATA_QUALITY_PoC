@@ -135,7 +135,7 @@ def main():
             with col4:  
                 st.write("Data Quality Status")
                 passed_tests_counts = dq_meta_table.groupby("STATUS").size()
-                st.bar_chart(passed_tests_counts,use_container_width=True, color=["#f06f6f", "#7fd787"],horizontal=True)               
+                st.bar_chart(passed_tests_counts,use_container_width=True,horizontal=True)               
             with col5:
                 st.write("Test Status by Rule Category")
                 passed_tests_counts = dq_meta_table.groupby(["RULE_CATEGORY","STATUS"]).size().unstack(fill_value=0)
