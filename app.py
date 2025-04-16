@@ -27,6 +27,9 @@ from datetime import datetime
 
 from datetime import datetime
 
+from datetime import datetime
+from snowflake.snowpark import Session
+
 def evaluate_rules(dq_meta_table: pd.DataFrame, session: Session) -> pd.DataFrame:
     # Get the current timestamp to use for "LAST_RUN"
     current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -56,12 +59,34 @@ def evaluate_rules(dq_meta_table: pd.DataFrame, session: Session) -> pd.DataFram
             result = f"Error: {str(e)}"
             status = "ERROR"
 
-        # Update the 'RESULT', 'STATUS', and 'LAST_RUN' columns
+        # Update the 'RESULT', 'STATUS', and 'LAST_RUN' columns in the DataFrame
         dq_meta_table.at[idx, "RESULT"] = result
         dq_meta_table.at[idx, "STATUS"] = status
         dq_meta_table.at[idx, "LAST_RUN"] = current_time
 
+    # Perform the update in Snowflake using MERGE statement
+    try:
+        for idx, row in dq_meta_table.iterrows():
+            rule_id = row['RULE_ID']
+            result = row['RESULT']
+            status = row['STATUS']
+            last_run = row['LAST_RUN']
+            
+            # Create SQL update statement for the current row
+            update_sql = f"""
+            UPDATE DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES
+            SET RESULT = '{result}', STATUS = '{status}', LAST_RUN = '{last_run}'
+            WHERE RULE_ID = {rule_id}
+            """
+            # Execute the SQL statement
+            session.sql(update_sql).collect()
+
+        print("Successfully updated the Snowflake table.")
+    except Exception as e:
+        print(f"Error updating Snowflake table: {str(e)}")
+    
     return dq_meta_table
+
 
 
 
