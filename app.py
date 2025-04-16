@@ -23,6 +23,29 @@ session = create_snowflake_session()
 # Run SQL query
 dq_meta_source_table = session.sql("SELECT * FROM DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES").to_pandas()
 
+def evaluate_rules(dq_meta_table: pd.DataFrame) -> pd.DataFrame:
+    cursor = conn.cursor()
+
+    for idx, row in dq_meta_table.iterrows():
+        rule_sql = row["RULE_SQL"]
+        result = None
+
+        try:
+            cursor.execute(rule_sql)
+            fetched = cursor.fetchone()
+
+            if fetched is not None:
+                result = fetched[0]
+            else:
+                result = "No result"
+
+        except Exception as e:
+            result = f"Error: {str(e)}"
+
+        dq_meta_table.at[idx, "RESULT"] = result
+
+    cursor.close()
+    return dq_meta_table
 
 def main():
     st.set_page_config(layout="wide")
@@ -53,6 +76,9 @@ def main():
         selected_table = st.selectbox("Select a Table:", "SALESFORCE_DONORS_PATIENTS_DATASET")
         if selected_table:
             dq_meta_table = dq_meta_source_table[dq_meta_source_table["TABLE_NAME"] == selected_table]
+            if st.button("Run Data Quality Checks"):
+                dq_meta_table = evaluate_rules(dq_meta_table.copy())
+                st.dataframe(dq_meta_table)            
             st.divider()
             col1, col2, col3 = st.columns(3, border = True)
             with col1:
