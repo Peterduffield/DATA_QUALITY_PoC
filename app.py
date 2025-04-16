@@ -23,29 +23,38 @@ session = create_snowflake_session()
 # Run SQL query
 dq_meta_source_table = session.sql("SELECT * FROM DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES").to_pandas()
 
-def evaluate_rules(dq_meta_table: pd.DataFrame) -> pd.DataFrame:
-    cursor = session.cursor()
-
+def evaluate_rules(dq_meta_table: pd.DataFrame, session: Session) -> pd.DataFrame:
     for idx, row in dq_meta_table.iterrows():
         rule_sql = row["RULE_SQL"]
         result = None
+        status = "UNKNOWN"
 
         try:
-            cursor.execute(rule_sql)
-            fetched = cursor.fetchone()
+            result_df = session.sql(rule_sql).to_pandas()
 
-            if fetched is not None:
-                result = fetched[0]
+            if not result_df.empty:
+                result = result_df.iloc[0, 0]
+
+                # Optional: Evaluate against threshold
+                if "THRESHOLD_PERCENT" in row and pd.notna(row["THRESHOLD_PERCENT"]):
+                    threshold = float(row["THRESHOLD_PERCENT"])
+                    status = "PASS" if float(result) <= threshold else "FAIL"
+                else:
+                    status = "PASS"  # Default if no threshold
             else:
                 result = "No result"
+                status = "FAIL"
 
         except Exception as e:
             result = f"Error: {str(e)}"
+            status = "ERROR"
 
         dq_meta_table.at[idx, "RESULT"] = result
+        dq_meta_table.at[idx, "STATUS"] = status
 
-    cursor.close()
     return dq_meta_table
+
+
 
 def main():
     st.set_page_config(layout="wide")
@@ -77,8 +86,10 @@ def main():
         if selected_table:
             dq_meta_table = dq_meta_source_table[dq_meta_source_table["TABLE_NAME"] == selected_table]
             if st.button("Run Data Quality Checks"):
-                dq_meta_table = evaluate_rules(dq_meta_table.copy())
-                st.dataframe(dq_meta_table)            
+                dq_result_table = evaluate_rules(dq_meta_source_table.copy(), session)
+                st.dataframe(dq_result_table)            
+
+
             st.divider()
             col1, col2, col3 = st.columns(3, border = True)
             with col1:
