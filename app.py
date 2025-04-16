@@ -127,10 +127,11 @@ def main():
             with col3:
                 st.write(":clock1: Last Updated")
                 last_updated = dq_meta_table['LAST_RUN'].max()
+                last_updated_str = last_updated.strftime('%Y-%m-%d')
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
-                        <h2>{last_updated}</h2>
+                        <h2>{last_updated_str}</h2>
                     </div>
                     """,
                     unsafe_allow_html=True)                 
