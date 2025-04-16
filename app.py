@@ -132,8 +132,7 @@ def main():
                     <div style='text-align: center;'>
                         <h2>{passed_tests}</h2>
                     </div>
-                    """,
-                    unsafe_allow_html=true) 
+                    """) 
                 
             col4,col5,col6 = st.columns(3, border = True)
 
