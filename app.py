@@ -115,7 +115,7 @@ def main():
                     """,
                     unsafe_allow_html=True)                
             with col2:
-                st.write(":straight_ruler: Data Quality Rules")
+                st.write(":straight_ruler: Data Quality Tests")
                 rules_tested = dq_meta_table['RULE_NAME'].nunique()
                 st.markdown(
                     f"""
@@ -125,7 +125,7 @@ def main():
                     """,
                     unsafe_allow_html=True)                
             with col3:
-                st.write(":white_check_mark: passed data quality rules")
+                st.write(":white_check_mark: Passed Data Quality Rules")
                 passed_tests = dq_meta_table[dq_meta_table['STATUS'] == 'PASS'].shape[0]
                 st.markdown(
                     f"""
