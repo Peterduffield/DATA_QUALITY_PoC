@@ -24,7 +24,7 @@ session = create_snowflake_session()
 dq_meta_source_table = session.sql("SELECT * FROM DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES").to_pandas()
 
 def evaluate_rules(dq_meta_table: pd.DataFrame) -> pd.DataFrame:
-    cursor = conn.cursor()
+    cursor = session.cursor()
 
     for idx, row in dq_meta_table.iterrows():
         rule_sql = row["RULE_SQL"]
