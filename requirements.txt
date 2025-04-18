@@ -6,3 +6,5 @@ snowflake-snowpark-python
 sqlparse
 matplotlib
 plotly
+requests
+json
