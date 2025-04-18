@@ -206,9 +206,10 @@ def main():
         )
     with dq_by_data_soource:
         def run_query(query):
-            with session._conn.cursor() as cur:  # Snowpark exposes ._conn as raw connector
+            with session.connection.cursor() as cur:
                 cur.execute(query)
                 return cur.fetchall()
+
         
         # Streamlit app UI
         st.title("Snowflake Cortex Analyst Chat")
