@@ -238,7 +238,8 @@ def main():
                     # Optional: Insert into Snowflake
 
                 else:
-                    st.error("LLM API failed.")      
+                    st.error(f"LLM API failed: {response.status_code}")
+                    st.code(response.text)    
 
     st.markdown(
         """
