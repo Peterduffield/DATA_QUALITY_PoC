@@ -206,88 +206,38 @@ def main():
         )
     with dq_by_data_soource:
 
-        
-        # Fetch available options dynamically
-        def get_databases():
-            return [db[0] for db in session.sql("SHOW DATABASES").collect()]
-        
-        def get_schemas(database):
-            return [schema[1] for schema in session.sql(f"SHOW SCHEMAS IN DATABASE {database}").collect()]
-        
-        def get_views(database, schema):
-            return [view[1] for view in session.sql(f"SHOW VIEWS IN {database}.{schema}").collect()]
-        
-        # Sidebar UI
-        def show_header_and_sidebar():
-            st.title("💬 Snowflake Cortex Chat with Semantic Model")
-        
-            st.sidebar.header("Select Semantic Model")
-        
-            # Step 1: Database selection
-            databases = get_databases()
-            selected_database = st.sidebar.selectbox("Database", databases)
-            st.session_state.selected_database = selected_database
-        
-            # Step 2: Schema selection
-            schemas = get_schemas(selected_database)
-            selected_schema = st.sidebar.selectbox("Schema", schemas)
-            st.session_state.selected_schema = selected_schema
-        
-            # Step 3: View selection (optional)
-            views = get_views(selected_database, selected_schema)
-            selected_view = st.sidebar.selectbox("View (optional)", [""] + views)
-            st.session_state.selected_view = selected_view if selected_view else None
-            
-        # Chat backend
-        def get_analyst_response(user_prompt: str) -> str:
-            messages = [
-                {"role": "system", "content": "You are a helpful data assistant."},
-                {"role": "user", "content": user_prompt}
-            ]
-        
-            semantic_model = {
-                "type": "schematic",
-                "database": st.session_state.selected_database,
-                "schema": st.session_state.selected_schema,
-            }
-        
-            if st.session_state.selected_view:
-                semantic_model["view"] = st.session_state.selected_view
-        
-            response = session.call(
-                "snowflake.cortex_analyst",
-                {
-                    "messages": messages,
-                    "semantic_model": semantic_model,
-                }
-            )
-        
-            return response
-        
-        show_header_and_sidebar()
-        
-        st.subheader("Ask a question about your data")
-        
-            # Initialize chat history
+        DATABASE = "DATA_GOV_POC"
+        SCHEMA = "DATA_QUALITY_POC"
+        VIEW = "SALES_PERFORMANCE"
+
+        # Load semantic model from view
+        semantic_df = session.table(f'{DATABASE}.{SCHEMA}.{VIEW}')
+        semantic_model_text = "\n".join(row[0] for row in semantic_df.collect())
+
+        chat = Chat(model="snowflake-arctic", messages=[
+            {"role": "system", "content": f"Use the following semantic model:\n{semantic_model_text}"}
+        ])        # Fetch available options dynamically
+        st.title("Semantic Search Chat with Snowflake Cortex")
+        st.write("Ask a question about your semantic model or metadata.")        
+        # Chat interface
         if "chat_history" not in st.session_state:
-                st.session_state.chat_history = []
+            st.session_state.chat_history = []
         
-        # Show previous messages
-        for role, message in st.session_state.chat_history:
-                st.chat_message(role).write(message)
+        user_input = st.chat_input("Ask a question...")
         
-            # Chat input
-        if prompt := st.chat_input("Enter your question here..."):
-            st.chat_message("user").write(prompt)
-            st.session_state.chat_history.append(("user", prompt))
+        if user_input:
+            st.session_state.chat_history.append({"role": "user", "content": user_input})
+            chat.messages = st.session_state.chat_history
         
-            with st.spinner("Thinking..."):
-                try:
-                    response = get_analyst_response(prompt)
-                    st.chat_message("assistant").write(response)
-                    st.session_state.chat_history.append(("assistant", response))
-                except Exception as e:
-                    st.chat_message("assistant").write(f"Error: {e}")
+            # Query Cortex
+            response = chat.complete(user_input)
+        
+            st.session_state.chat_history.append({"role": "assistant", "content": response})
+        
+        # Display chat history
+        for msg in st.session_state.chat_history:
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
    
 
     st.markdown(
