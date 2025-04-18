@@ -4,6 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 import os
+import requests
+import json
 
 # Create a function to connect using Snowpark
 SF_CREDENTIALS = {
