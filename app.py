@@ -206,40 +206,89 @@ def main():
         )
     with dq_by_data_soource:
 
-        st.title("LLM-Powered Data Quality Rule Suggestion")
-
-        col_name = st.text_input("Column Name", value="ADDRESS")
-        col_type = st.selectbox("Column Type", ["VARCHAR", "NUMBER", "DATE", "BOOLEAN", "TIMESTAMP"])
-
-        prompt = f"Suggest 3 data quality rules for a column named '{col_name}' of type '{col_type}' in a data warehouse."
-
-        if st.button("Suggest Rules"):
-            with st.spinner("Thinking..."):
-                # Call OpenAI API
-                headers = {
-                    "Authorization": f"Bearer {st.secrets['OPENAI_API_KEY']}",
-                    "Content-Type": "application/json"
+        
+        # Fetch available options dynamically
+        def get_databases():
+            return [db[0] for db in session.sql("SHOW DATABASES").collect()]
+        
+        def get_schemas(database):
+            return [schema[1] for schema in session.sql(f"SHOW SCHEMAS IN DATABASE {database}").collect()]
+        
+        def get_views(database, schema):
+            return [view[1] for view in session.sql(f"SHOW VIEWS IN {database}.{schema}").collect()]
+        
+        # Sidebar UI
+        def show_header_and_sidebar():
+            st.title("💬 Snowflake Cortex Chat with Semantic Model")
+        
+            st.sidebar.header("Select Semantic Model")
+        
+            # Step 1: Database selection
+            databases = get_databases()
+            selected_database = st.sidebar.selectbox("Database", databases)
+            st.session_state.selected_database = selected_database
+        
+            # Step 2: Schema selection
+            schemas = get_schemas(selected_database)
+            selected_schema = st.sidebar.selectbox("Schema", schemas)
+            st.session_state.selected_schema = selected_schema
+        
+            # Step 3: View selection (optional)
+            views = get_views(selected_database, selected_schema)
+            selected_view = st.sidebar.selectbox("View (optional)", [""] + views)
+            st.session_state.selected_view = selected_view if selected_view else None
+        
+        # Chat backend
+        def get_analyst_response(user_prompt: str) -> str:
+            messages = [
+                {"role": "system", "content": "You are a helpful data assistant."},
+                {"role": "user", "content": user_prompt}
+            ]
+        
+            semantic_model = {
+                "type": "schematic",
+                "database": st.session_state.selected_database,
+                "schema": st.session_state.selected_schema,
+            }
+        
+            if st.session_state.selected_view:
+                semantic_model["view"] = st.session_state.selected_view
+        
+            response = session.call(
+                "snowflake.cortex_analyst",
+                {
+                    "messages": messages,
+                    "semantic_model": semantic_model,
                 }
-
-                body = {
-                    "model": "gpt-3.5-turbo",
-                    "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.7
-                }
-
-                response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, data=json.dumps(body))
-
-                if response.status_code == 200:
-                    result = response.json()
-                    suggestions = result['choices'][0]['message']['content']
-                    st.subheader("Suggested Data Quality Rules:")
-                    st.markdown(suggestions)
-
-                    # Optional: Insert into Snowflake
-
-                else:
-                    st.error(f"LLM API failed: {response.status_code}")
-                    st.code(response.text)    
+            )
+        
+            return response
+        
+            show_header_and_sidebar()
+        
+            st.subheader("Ask a question about your data")
+        
+            # Initialize chat history
+            if "chat_history" not in st.session_state:
+                st.session_state.chat_history = []
+        
+            # Show previous messages
+            for role, message in st.session_state.chat_history:
+                st.chat_message(role).write(message)
+        
+            # Chat input
+            if prompt := st.chat_input("Enter your question here..."):
+                st.chat_message("user").write(prompt)
+                st.session_state.chat_history.append(("user", prompt))
+        
+                with st.spinner("Thinking..."):
+                    try:
+                        response = get_analyst_response(prompt)
+                        st.chat_message("assistant").write(response)
+                        st.session_state.chat_history.append(("assistant", response))
+                    except Exception as e:
+                        st.chat_message("assistant").write(f"Error: {e}")
+   
 
     st.markdown(
         """
