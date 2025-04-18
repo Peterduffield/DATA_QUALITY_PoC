@@ -237,7 +237,7 @@ def main():
             views = get_views(selected_database, selected_schema)
             selected_view = st.sidebar.selectbox("View (optional)", [""] + views)
             st.session_state.selected_view = selected_view if selected_view else None
-        
+            
         # Chat backend
         def get_analyst_response(user_prompt: str) -> str:
             messages = [
@@ -264,30 +264,30 @@ def main():
         
             return response
         
-            show_header_and_sidebar()
+        show_header_and_sidebar()
         
-            st.subheader("Ask a question about your data")
+        st.subheader("Ask a question about your data")
         
             # Initialize chat history
-            if "chat_history" not in st.session_state:
+        if "chat_history" not in st.session_state:
                 st.session_state.chat_history = []
         
-            # Show previous messages
-            for role, message in st.session_state.chat_history:
+        # Show previous messages
+        for role, message in st.session_state.chat_history:
                 st.chat_message(role).write(message)
         
             # Chat input
-            if prompt := st.chat_input("Enter your question here..."):
-                st.chat_message("user").write(prompt)
-                st.session_state.chat_history.append(("user", prompt))
+        if prompt := st.chat_input("Enter your question here..."):
+            st.chat_message("user").write(prompt)
+            st.session_state.chat_history.append(("user", prompt))
         
-                with st.spinner("Thinking..."):
-                    try:
-                        response = get_analyst_response(prompt)
-                        st.chat_message("assistant").write(response)
-                        st.session_state.chat_history.append(("assistant", response))
-                    except Exception as e:
-                        st.chat_message("assistant").write(f"Error: {e}")
+            with st.spinner("Thinking..."):
+                try:
+                    response = get_analyst_response(prompt)
+                    st.chat_message("assistant").write(response)
+                    st.session_state.chat_history.append(("assistant", response))
+                except Exception as e:
+                    st.chat_message("assistant").write(f"Error: {e}")
    
 
     st.markdown(
