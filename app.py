@@ -205,40 +205,48 @@ def main():
         unsafe_allow_html=True,
         )
     with dq_by_data_soource:
-
-        DATABASE = "DATA_GOV_POC"
-        SCHEMA = "DATA_QUALITY_POC"
-        VIEW = "SALES_PERFORMANCE"
-
-        # Load semantic model from view
-        semantic_df = session.table(f'{DATABASE}.{SCHEMA}.{VIEW}')
-        semantic_model_text = "\n".join(row[0] for row in semantic_df.collect())
-
-        chat = Chat(model="snowflake-arctic", messages=[
-            {"role": "system", "content": f"Use the following semantic model:\n{semantic_model_text}"}
-        ])        # Fetch available options dynamically
-        st.title("Semantic Search Chat with Snowflake Cortex")
-        st.write("Ask a question about your semantic model or metadata.")        
-        # Chat interface
+        def run_query(query):
+            with session._conn.cursor() as cur:  # Snowpark exposes ._conn as raw connector
+                cur.execute(query)
+                return cur.fetchall()
+        
+        # Streamlit app UI
+        st.title("Snowflake Cortex Analyst Chat")
+        
         if "chat_history" not in st.session_state:
-            st.session_state.chat_history = []
+            st.session_state["chat_history"] = []
         
-        user_input = st.chat_input("Ask a question...")
+        user_question = st.text_input("Ask a question about your data:")
+        ask_button = st.button("Ask")
+        chat_placeholder = st.empty()
         
-        if user_input:
-            st.session_state.chat_history.append({"role": "user", "content": user_input})
-            chat.messages = st.session_state.chat_history
+        if ask_button and user_question:
+            st.session_state["chat_history"].append(f"**You:** {user_question}")
         
-            # Query Cortex
-            response = chat.complete(user_input)
+            # Set semantic view path
+            DATABASE = "DATA_GOV_POC"
+            SCHEMA = "DATA_QUALITY_POC"
+            VIEW = "SALES_PERFORMANCE"
+            full_view_name = f"{DATABASE}.{SCHEMA}.{VIEW}"
         
-            st.session_state.chat_history.append({"role": "assistant", "content": response})
+            cortex_query = f"""
+                SELECT CORTEX_ANALYST('{user_question}', '{full_view_name}');
+            """
+        
+            try:
+                results = run_query(cortex_query)
+                if results:
+                    cortex_response = results[0][0]
+                    st.session_state["chat_history"].append(f"**Cortex Analyst:** {cortex_response}")
+                else:
+                    st.session_state["chat_history"].append("**Cortex Analyst:** No answer found.")
+            except Exception as e:
+                st.session_state["chat_history"].append(f"**Error:** {e}")
         
         # Display chat history
-        for msg in st.session_state.chat_history:
-            with st.chat_message(msg["role"]):
-                st.markdown(msg["content"])
-   
+        chat_text = "\n\n".join(st.session_state["chat_history"])
+        chat_placeholder.markdown(chat_text)
+           
 
     st.markdown(
         """
