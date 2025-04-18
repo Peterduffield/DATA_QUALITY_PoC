@@ -204,24 +204,39 @@ def main():
         )
     with dq_by_data_soource:
 
-        st.markdown(
-        """
-        <style>
-        .container {
-            display: flex;
-            justify-content: center;
-        }
-        .container img {
-            transform: scale(10);
-        }
-        </style>
-        <div class="container">
-            <img src="https://pngimg.com/d/under_construction_PNG18.png" alt="Hakkoda Logo">
+        st.title("LLM-Powered Data Quality Rule Suggestion")
 
-        </div>
-        """,
-        unsafe_allow_html=True,
-        )      
+        col_name = st.text_input("Column Name", value="ADDRESS")
+        col_type = st.selectbox("Column Type", ["VARCHAR", "NUMBER", "DATE", "BOOLEAN", "TIMESTAMP"])
+
+        prompt = f"Suggest 3 data quality rules for a column named '{col_name}' of type '{col_type}' in a data warehouse."
+
+        if st.button("Suggest Rules"):
+            with st.spinner("Thinking..."):
+                # Call OpenAI API
+                headers = {
+                    "Authorization": f"Bearer {st.secrets['OPENAI_API_KEY']}",
+                    "Content-Type": "application/json"
+                }
+
+                body = {
+                    "model": "gpt-3.5-turbo",
+                    "messages": [{"role": "user", "content": prompt}],
+                    "temperature": 0.7
+                }
+
+                response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, data=json.dumps(body))
+
+                if response.status_code == 200:
+                    result = response.json()
+                    suggestions = result['choices'][0]['message']['content']
+                    st.subheader("Suggested Data Quality Rules:")
+                    st.markdown(suggestions)
+
+                    # Optional: Insert into Snowflake
+
+                else:
+                    st.error("LLM API failed.")      
 
     st.markdown(
         """
