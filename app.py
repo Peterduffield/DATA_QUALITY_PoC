@@ -6,6 +6,7 @@ import plotly.express as px
 import os
 import requests
 import json
+from typing import Any
 
 # Create a function to connect using Snowpark
 SF_CREDENTIALS = {
