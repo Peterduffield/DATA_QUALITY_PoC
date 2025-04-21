@@ -212,9 +212,8 @@ def main():
         def send_message(session) -> requests.Response:
             """Calls the Cortex Analyst REST API using Snowpark session for token/host."""
             try:
-                rest_session = session._session._rest  # ⚠️ internal API access
-                token = rest_session._token
-                host = rest_session._host
+                token = session.connection.rest.token
+                host = session.connection.rest.host
         
                 full_view_name = f"{DATABASE}.{SCHEMA}.{VIEW}"
         
