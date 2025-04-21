@@ -275,8 +275,7 @@ def main():
                 st.session_state.messages.append({"role": "analyst", "content": full_response})
         
         
-        # === Streamlit App UI ===
-        st.set_page_config(page_title="Cortex Analyst Chat", layout="centered")
+
         st.title("💬 Snowflake Cortex Analyst Chat")
         st.markdown(f"**Semantic Model View:** `{DATABASE}.{SCHEMA}.{VIEW}`")
         
