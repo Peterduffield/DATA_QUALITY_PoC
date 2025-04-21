@@ -6,7 +6,8 @@ import plotly.express as px
 import os
 import requests
 import json
-from typing import Any
+from typing import Any, List, Dict
+
 
 # Create a function to connect using Snowpark
 SF_CREDENTIALS = {
@@ -188,43 +189,47 @@ def main():
 
     with dq_by_db:
         
-        DATABASE = "DATA_GOV_POC"  # Replace with your database
-        SCHEMA = "DATA_QUALITY_POC"      # Replace with your schema
-        VIEW = "SALES_PERFORMANCE" # Replace with your semantic view name
-        
-        def get_conversation_history() -> list[dict[str, Any]]:
+        DATABASE = "DATA_GOV_POC"  
+        SCHEMA = "DATA_QUALITY_POC"   
+        VIEW = "SALES_PERFORMANCE"
+
+        # Function to retrieve conversation history
+        def get_conversation_history() -> List[Dict[str, str]]:
+            """Retrieves the conversation history for the chat."""
             messages = []
             for msg in st.session_state.messages:
-                m: dict[str, Any] = {}
+                m = {}
                 if msg["role"] == "user":
                     m["role"] = "user"
                 else:
                     m["role"] = "analyst"
-                # Convert message content to the required structure
-                if isinstance(msg["content"], str):
-                    m["content"] = [{"type": "text", "text": msg["content"]}]
-                elif isinstance(msg["content"], list):
-                    m["content"] = msg["content"]
+                text_content = "\n".join([c for c in msg["content"] if isinstance(c, str)])
+                m["content"] = [{"type": "text", "text": text_content}]
                 messages.append(m)
             return messages
         
-        
-        def send_message(session) -> requests.Response:
-            """Calls the Cortex Analyst REST API using Snowpark session for token/host."""
+        # Function to send the message to the REST API and get a response
+        def send_message_to_cortex(session) -> requests.Response:
+            """Sends the chat message to Snowflake Cortex Analyst via REST API."""
             try:
+                # Accessing Snowflake session to get the host and token
                 token = session.connection.rest.token
                 host = session.connection.rest.host
-        
+                
+                # Semantic view to be passed in the request
                 full_view_name = f"{DATABASE}.{SCHEMA}.{VIEW}"
-        
+                
+                # Request body for the API
                 request_body = {
                     "messages": get_conversation_history(),
                     "semantic_model_file": full_view_name,
                     "stream": True,
                 }
-        
+                
+                # API URL for the request
                 api_url = f"https://{host}/api/v2/cortex/analyst/message"
-        
+                
+                # Sending the request to the API
                 resp = requests.post(
                     url=api_url,
                     json=request_body,
@@ -239,54 +244,56 @@ def main():
                     return resp
                 else:
                     raise Exception(f"Failed request with status {resp.status_code}: {resp.text}")
-        
+            
             except AttributeError as e:
                 raise Exception(f"Error accessing session details: {e}")
             except requests.exceptions.RequestException as e:
                 raise Exception(f"Error making Cortex request: {e}")
         
+        # Streamlit UI setup
+        st.title("Snowflake Cortex Analyst Chat")
         
-        def show_conversation_history():
-            for msg in st.session_state.messages:
-                with st.chat_message(msg["role"]):
-                    st.markdown(msg["content"])
-        
-        
-        def process_message(prompt: str, session):
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            with st.chat_message("analyst"):
-                message_placeholder = st.empty()
-                full_response = ""
-        
-                try:
-                    response = send_message(session)
-        
-                    for chunk in response.iter_content(chunk_size=None):
-                        if chunk:
-                            decoded_chunk = chunk.decode("utf-8")
-                            full_response += decoded_chunk
-                            message_placeholder.markdown(full_response)
-        
-                except Exception as e:
-                    st.session_state.messages.append({"role": "analyst", "content": f"❌ Error: {e}"})
-                    return
-        
-                st.session_state.messages.append({"role": "analyst", "content": full_response})
-        
-        
-
-        st.title("💬 Snowflake Cortex Analyst Chat")
-        st.markdown(f"**Semantic Model View:** `{DATABASE}.{SCHEMA}.{VIEW}`")
-        
+        # Initialize session state for messages if not already initialized
         if "messages" not in st.session_state:
             st.session_state.messages = []
+            st.session_state.status = "Interpreting question"
+            st.session_state.error = None
         
-        # Show prior chat
+        # Display chat history
+        def show_conversation_history():
+            """Displays conversation history in the chat."""
+            chat_text = ""
+            for message in st.session_state.messages:
+                chat_text += f"{message['role'].capitalize()}: {message['content']}\n\n"
+            st.text_area("Conversation History", chat_text, height=300, max_chars=3000, disabled=True)
+        
+        # Handle user input
+        user_input = st.text_input("Ask a question:")
+        
+        # Button to trigger the API call
+        ask_button = st.button("Ask")
+        
+        if ask_button and user_input:
+            # Append the user input to the conversation history
+            st.session_state.messages.append({"role": "user", "content": user_input})
+            
+            # Set the session object
+            session = create_snowflake_session()
+        
+            # Send message to Cortex Analyst and get response
+            try:
+                response = send_message_to_cortex(session)
+                if response.status_code == 200:
+                    cortex_response = response.json()['choices'][0]['message']['content']
+                    st.session_state.messages.append({"role": "analyst", "content": cortex_response})
+                else:
+                    st.session_state.messages.append({"role": "analyst", "content": "No answer found."})
+            except Exception as e:
+                st.session_state.messages.append({"role": "analyst", "content": f"Error: {str(e)}"})
+        
+        # Show updated conversation
         show_conversation_history()
-        
-        # Chat input
-        if user_input := st.chat_input("Ask a question about your semantic model..."):
-            process_message(prompt=user_input, session=session)
+
             
     with dq_by_data_soource:
         def run_query(query):
