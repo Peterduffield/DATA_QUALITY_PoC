@@ -309,7 +309,7 @@ def main():
             st.session_state["chat_history"] = []
         
         user_question = st.text_input("Ask a question about your data:")
-        ask_button = st.button("Ask")
+        ask_button = st.button("Ask_Test_API_AI")
         chat_placeholder = st.empty()
         
         if ask_button and user_question:
