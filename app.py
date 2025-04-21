@@ -199,16 +199,19 @@ def main():
                     m["role"] = "user"
                 else:
                     m["role"] = "analyst"
-                text_content = "\n".join([c for c in msg["content"] if isinstance(c, str)])
-                m["content"] = [{"type": "text", "text": text_content}]
+                # Convert message content to the required structure
+                if isinstance(msg["content"], str):
+                    m["content"] = [{"type": "text", "text": msg["content"]}]
+                elif isinstance(msg["content"], list):
+                    m["content"] = msg["content"]
                 messages.append(m)
             return messages
         
+        
         def send_message(session) -> requests.Response:
-            """Calls the REST API using the provided Snowpark session and returns a streaming client."""
+            """Calls the Cortex Analyst REST API using Snowpark session for token/host."""
             try:
-                # Access the underlying connection details to get the token and host
-                rest_session = session._session._rest  # This is a likely path, but might need adjustment
+                rest_session = session._session._rest  # ⚠️ internal API access
                 token = rest_session._token
                 host = rest_session._host
         
@@ -216,9 +219,10 @@ def main():
         
                 request_body = {
                     "messages": get_conversation_history(),
-                    "semantic_model_file": full_view_name, # Using the view name directly as the semantic layer
+                    "semantic_model_file": full_view_name,
                     "stream": True,
                 }
+        
                 api_url = f"https://{host}/api/v2/cortex/analyst/message"
         
                 resp = requests.post(
@@ -230,28 +234,60 @@ def main():
                     },
                     stream=True,
                 )
+        
                 if resp.status_code < 400:
-                    return resp  # type: ignore
+                    return resp
                 else:
                     raise Exception(f"Failed request with status {resp.status_code}: {resp.text}")
         
             except AttributeError as e:
-                raise Exception(f"Error accessing session details (token or host). Check your Snowpark session object: {e}")
+                raise Exception(f"Error accessing session details: {e}")
             except requests.exceptions.RequestException as e:
-                raise Exception(f"Error making the Cortex Analyst API request: {e}")
+                raise Exception(f"Error making Cortex request: {e}")
         
-        st.title("Snowflake Cortex Analyst Chat")
-        st.markdown(f"Semantic Model View: `{SF_CREDENTIALS['database']}.{SF_CREDENTIALS['schema']}.{VIEW}`")
+        
+        def show_conversation_history():
+            for msg in st.session_state.messages:
+                with st.chat_message(msg["role"]):
+                    st.markdown(msg["content"])
+        
+        
+        def process_message(prompt: str, session):
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            with st.chat_message("analyst"):
+                message_placeholder = st.empty()
+                full_response = ""
+        
+                try:
+                    response = send_message(session)
+        
+                    for chunk in response.iter_content(chunk_size=None):
+                        if chunk:
+                            decoded_chunk = chunk.decode("utf-8")
+                            full_response += decoded_chunk
+                            message_placeholder.markdown(full_response)
+        
+                except Exception as e:
+                    st.session_state.messages.append({"role": "analyst", "content": f"❌ Error: {e}"})
+                    return
+        
+                st.session_state.messages.append({"role": "analyst", "content": full_response})
+        
+        
+        # === Streamlit App UI ===
+        st.set_page_config(page_title="Cortex Analyst Chat", layout="centered")
+        st.title("💬 Snowflake Cortex Analyst Chat")
+        st.markdown(f"**Semantic Model View:** `{DATABASE}.{SCHEMA}.{VIEW}`")
         
         if "messages" not in st.session_state:
             st.session_state.messages = []
-            st.session_state.status = "Interpreting question"
-            st.session_state.error = None
         
+        # Show prior chat
         show_conversation_history()
         
-        if user_input := st.chat_input("What is your question?"):
-            process_message(prompt=user_input, session=session) # Pass the session
+        # Chat input
+        if user_input := st.chat_input("Ask a question about your semantic model..."):
+            process_message(prompt=user_input, session=session)
             
     with dq_by_data_soource:
         def run_query(query):
