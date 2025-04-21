@@ -186,24 +186,73 @@ def main():
 
 
     with dq_by_db:
-        st.markdown(
-        """
-        <style>
-        .container {
-            display: flex;
-            justify-content: center;
-        }
-        .container img {
-            transform: scale(10);
-        }
-        </style>
-        <div class="container">
-            <img src="https://pngimg.com/d/under_construction_PNG18.png" alt="Hakkoda Logo">
-
-        </div>
-        """,
-        unsafe_allow_html=True,
-        )
+        
+        DATABASE = "DATA_GOV_POC"  # Replace with your database
+        SCHEMA = "DATA_QUALITY_POC"      # Replace with your schema
+        VIEW = "SALES_PERFORMANCE" # Replace with your semantic view name
+        
+        def get_conversation_history() -> list[dict[str, Any]]:
+            messages = []
+            for msg in st.session_state.messages:
+                m: dict[str, Any] = {}
+                if msg["role"] == "user":
+                    m["role"] = "user"
+                else:
+                    m["role"] = "analyst"
+                text_content = "\n".join([c for c in msg["content"] if isinstance(c, str)])
+                m["content"] = [{"type": "text", "text": text_content}]
+                messages.append(m)
+            return messages
+        
+        def send_message(session) -> requests.Response:
+            """Calls the REST API using the provided Snowpark session and returns a streaming client."""
+            try:
+                # Access the underlying connection details to get the token and host
+                rest_session = session._session._rest  # This is a likely path, but might need adjustment
+                token = rest_session._token
+                host = rest_session._host
+        
+                full_view_name = f"{DATABASE}.{SCHEMA}.{VIEW}"
+        
+                request_body = {
+                    "messages": get_conversation_history(),
+                    "semantic_model_file": full_view_name, # Using the view name directly as the semantic layer
+                    "stream": True,
+                }
+                api_url = f"https://{host}/api/v2/cortex/analyst/message"
+        
+                resp = requests.post(
+                    url=api_url,
+                    json=request_body,
+                    headers={
+                        "Authorization": f'Snowflake Token="{token}"',
+                        "Content-Type": "application/json",
+                    },
+                    stream=True,
+                )
+                if resp.status_code < 400:
+                    return resp  # type: ignore
+                else:
+                    raise Exception(f"Failed request with status {resp.status_code}: {resp.text}")
+        
+            except AttributeError as e:
+                raise Exception(f"Error accessing session details (token or host). Check your Snowpark session object: {e}")
+            except requests.exceptions.RequestException as e:
+                raise Exception(f"Error making the Cortex Analyst API request: {e}")
+        
+        st.title("Snowflake Cortex Analyst Chat")
+        st.markdown(f"Semantic Model View: `{SF_CREDENTIALS['database']}.{SF_CREDENTIALS['schema']}.{VIEW}`")
+        
+        if "messages" not in st.session_state:
+            st.session_state.messages = []
+            st.session_state.status = "Interpreting question"
+            st.session_state.error = None
+        
+        show_conversation_history()
+        
+        if user_input := st.chat_input("What is your question?"):
+            process_message(prompt=user_input, session=session) # Pass the session
+            
     with dq_by_data_soource:
         def run_query(query):
             with session.connection.cursor() as cur:
