@@ -7,4 +7,3 @@ sqlparse
 matplotlib
 plotly
 requests
-typing
