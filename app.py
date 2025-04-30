@@ -102,7 +102,8 @@ def main():
         """,
         unsafe_allow_html=True
     )
-
+    with st.sidebar:
+        selected_database = st.selectbox("Select a Database:", snowflake_db_meta_source_table["database_name"].unique())
     dq_by_table, dq_by_db, dq_by_data_soource =  st.tabs(['Data Quality by Table', 'Data Quality by DataBase', 'Data Quality by Data Source'])
     with dq_by_table:
         dq_meta_table = dq_meta_source_table
