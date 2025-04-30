@@ -26,8 +26,18 @@ session = create_snowflake_session()
 
 # Run SQL query
 dq_meta_source_table = session.sql("SELECT * FROM DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES").to_pandas()
-snowflake_db_meta_source_table = session.sql("SELECT table_catalog AS database_name, table_schema AS schema_name, table_name FROM information_schema.table WHERE table_type = 'BASE TABLE'ORDER BY database_name, schema_name, table_name").to_pandas()
-
+snowflake_db_meta_source_table = session.sql("""
+    SELECT 
+        table_catalog AS database_name, 
+        table_schema AS schema_name, 
+        table_name 
+    FROM 
+        information_schema.tables 
+    WHERE 
+        table_type = 'BASE TABLE'
+    ORDER BY 
+        database_name, schema_name, table_name
+""").to_pandas()
 
 def evaluate_rules(dq_meta_table: pd.DataFrame, session: Session) -> pd.DataFrame:
     # Get the current timestamp to use for "LAST_RUN"
