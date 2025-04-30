@@ -7,7 +7,7 @@ import os
 import requests
 import json
 from typing import Any, List, Dict
-
+from datetime import datetime
 
 # Create a function to connect using Snowpark
 SF_CREDENTIALS = {
@@ -26,10 +26,8 @@ session = create_snowflake_session()
 
 # Run SQL query
 dq_meta_source_table = session.sql("SELECT * FROM DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES").to_pandas()
+snowflake_db_meta_source_table = session.sql("SELECT table_catalog AS database_name, table_schema AS schema_name, table_name FROM information_schema.table WHERE table_type = 'BASE TABLE'ORDER BY database_name, schema_name, table_name").to_pandas()
 
-from datetime import datetime
-
-from datetime import datetime
 
 def evaluate_rules(dq_meta_table: pd.DataFrame, session: Session) -> pd.DataFrame:
     # Get the current timestamp to use for "LAST_RUN"
@@ -158,7 +156,7 @@ def main():
                 st.write("Test Status by Column")
                 passed_tests_counts = dq_meta_table.groupby(["COLUMN_TESTED","STATUS"]).size().unstack(fill_value=0)
                 st.bar_chart(passed_tests_counts,use_container_width=True, color=["#f06f6f", "#7fd787"],horizontal=True)                
-            with st.popover("View Data Quality Tests Table", use_container_width=True):
+            with st.expander("View Data Quality Tests Table", use_container_width=True):
                 st.dataframe(dq_meta_table, hide_index=True)
 
             if st.button("Run Data Quality Checks", use_container_width=True):
