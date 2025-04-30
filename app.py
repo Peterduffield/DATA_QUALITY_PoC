@@ -113,7 +113,7 @@ def main():
             (snowflake_db_meta_source_table["SCHEMA_NAME"] == selected_schema)
         ]["TABLE_NAME"].unique()
         
-dq_by_table, dq_by_db, dq_by_data_soource =  st.tabs(['Data Quality by Table', 'Data Quality by DataBase', 'Data Quality by Data Source'])
+    dq_by_table, dq_by_db, dq_by_data_soource =  st.tabs(['Data Quality by Table', 'Data Quality by DataBase', 'Data Quality by Data Source'])
     with dq_by_table:
         dq_meta_table = dq_meta_source_table
         selected_table = st.selectbox("Select a Table:", tables_in_selected_schema)        
