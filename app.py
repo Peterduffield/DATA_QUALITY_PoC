@@ -166,8 +166,6 @@ def main():
                 st.write("Test Status by Column")
                 passed_tests_counts = dq_meta_table.groupby(["COLUMN_TESTED","STATUS"]).size().unstack(fill_value=0)
                 st.bar_chart(passed_tests_counts,use_container_width=True, color=["#f06f6f", "#7fd787"],horizontal=True)                
-            with st.expander("View Data Quality Tests Table"):
-                st.dataframe(dq_meta_table, hide_index=True)
 
             if st.button("Run Data Quality Checks", use_container_width=True):
                 # Call the function to evaluate rules and get the results
@@ -193,7 +191,9 @@ def main():
                     st.success("Snowflake table updated successfully!")
                 except Exception as e:
                     st.error(f"Error updating Snowflake table: {e}")
-
+                    
+            with st.expander("View Data Quality Tests Table"):
+                st.dataframe(dq_meta_table, hide_index=True)
 
     with dq_by_db:
         st.write("Coming Soon")
