@@ -104,12 +104,19 @@ def main():
     )
     with st.sidebar:
         selected_database = st.selectbox("Select a Database:", snowflake_db_meta_source_table["DATABASE_NAME"].unique())
-        selected_schema = st.selectbox("Select a Schema:", snowflake_db_meta_source_table["SCHEMA_NAME"].unique())
-    st.dataframe(snowflake_db_meta_source_table)
-    dq_by_table, dq_by_db, dq_by_data_soource =  st.tabs(['Data Quality by Table', 'Data Quality by DataBase', 'Data Quality by Data Source'])
+        
+        schemas_in_selected_db = snowflake_db_meta_source_table[snowflake_db_meta_source_table["DATABASE_NAME"] == selected_database]["SCHEMA_NAME"].unique()
+        selected_schema = st.selectbox("Select a Schema:", schemas_in_selected_db)
+        
+        tables_in_selected_schema = snowflake_db_meta_source_table[
+            (snowflake_db_meta_source_table["DATABASE_NAME"] == selected_database) &
+            (snowflake_db_meta_source_table["SCHEMA_NAME"] == selected_schema)
+        ]["TABLE_NAME"].unique()
+        
+dq_by_table, dq_by_db, dq_by_data_soource =  st.tabs(['Data Quality by Table', 'Data Quality by DataBase', 'Data Quality by Data Source'])
     with dq_by_table:
         dq_meta_table = dq_meta_source_table
-        selected_table = st.selectbox("Select a Table:", "SALESFORCE_DONORS_PATIENTS_DATASET")
+        selected_table = st.selectbox("Select a Table:", tables_in_selected_schema)        
         if selected_table:
             dq_meta_table = dq_meta_source_table[dq_meta_source_table["TABLE_NAME"] == selected_table]
        
