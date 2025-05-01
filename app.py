@@ -107,7 +107,7 @@ def main():
             (snowflake_db_meta_source_table["SCHEMA_NAME"] == selected_schema)
         ]["TABLE_NAME"].unique()
         
-    dq_by_table, dq_by_db, dq_by_data_soource =  st.tabs(['Data Quality by Table', 'Data Quality by DataBase', 'Data Quality by Data Source'])
+    dq_by_table, dq_by_db, dq_by_data_soource =  st.tabs(['Data Quality by Table', 'Data Quality by Schema', 'Data Quality by Database'])
     with dq_by_table:
         dq_meta_table = dq_meta_source_table
         selected_table = st.selectbox("Select a Table:", tables_in_selected_schema)        
@@ -179,7 +179,7 @@ def main():
                 # Call the function to evaluate rules and get the results
                 dq_result_table = evaluate_rules(dq_meta_table.copy(), session)
                 
-                # Optionally: Update the table in Snowflake (you can add this step in the same block or after)
+                # Update the table in Snowflake (you can add this step in the same block or after)
                 try:
                     for idx, row in dq_result_table.iterrows():
                         update_query = f"""
