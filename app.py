@@ -203,6 +203,11 @@ def main():
             with st.expander("View Data Quality Tests Table"):
                 st.dataframe(dq_meta_table, hide_index=True)
 
+            st.divider()
+
+            st.write("##Create a New Data Quality Rule for {selected_table}") 
+               
+
     with dq_by_db:
         st.write("Coming Soon")
         
