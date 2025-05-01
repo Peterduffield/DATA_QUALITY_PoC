@@ -1,12 +1,9 @@
 from snowflake.snowpark import Session
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import plotly.express as px
 import os
 import requests
 import json
-from typing import Any, List, Dict
 from datetime import datetime
 
 # Create a function to connect using Snowpark
@@ -145,7 +142,11 @@ def main():
             with col3:
                 st.write(":clock1: Last Updated")
                 last_updated = dq_meta_table['LAST_RUN'].max()
-                last_updated_str = last_updated.strftime('%Y-%m-%d')
+                
+                if pd.notnull(last_updated):
+                    last_updated_str = last_updated.strftime('%Y-%m-%d')
+                else:
+                    last_updated_str = "N/A"
                 st.markdown(
                     f"""
                     <div style='text-align: center;'>
