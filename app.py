@@ -231,7 +231,7 @@ def main():
                                         "TABLE_NAME": selected_table,
                                         "DATA_SOURCE": rule_datasource_input,
                                         "RULE_SQL": rule_sql_input,
-                                        "ACCEPTED_THRESHOLD_PCT": 100.0,  # or get from another input field
+                                        "ACCEPTED_THRESHOLD_PCT": rule_accpt_perc_input,  # or get from another input field
                                         "IS_ACTIVE": True,
                                         "CREATED_AT": datetime.datetime.now(),
                                         "COLUMN_TESTED": rule_column_input,
