@@ -1,10 +1,7 @@
 from snowflake.snowpark import Session
 import streamlit as st
 import pandas as pd
-import os
-import requests
-import json
-from datetime import datetime
+import datetime
 
 # Create a function to connect using Snowpark
 SF_CREDENTIALS = {
