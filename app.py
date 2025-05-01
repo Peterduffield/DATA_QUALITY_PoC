@@ -230,7 +230,7 @@ def main():
                             "RULE_SQL": rule_sql_input,
                             "ACCEPTED_THRESHOLD_PCT": 100.0,  # or get from another input field
                             "IS_ACTIVE": True,
-                            "CREATED_AT": datetime.now(),
+                            "CREATED_AT": datetime.datetime.now(),
                             "COLUMN_TESTED": rule_column_input,
                             "RESULT": None,
                             "LAST_RUN": None,
