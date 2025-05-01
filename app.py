@@ -205,7 +205,7 @@ def main():
 
             st.divider()
 
-            st.subheader("Create a New Data Quality Rule for {selected_table}") 
+            st.subheader(f"Create a New Data Quality Rule for {selected_table}") 
 
 
     with dq_by_db:
