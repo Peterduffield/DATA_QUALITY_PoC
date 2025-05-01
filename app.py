@@ -205,11 +205,16 @@ def main():
 
             st.divider()
             st.subheader(f"Create a New Data Quality Rule for {selected_table}") 
-            rule_name_input = st.text_input("Rule Name:")
-            rule_description_input = st.text_input("Description:")
-            rule_category_input = st.selectbox("Category", ["Completeness","Uniqueness","Validity","Consistency","Accuracy"])
-            rule_sql_input = st.text_input("Rule SQL:")
-            
+            rule_col1, rule_col2 = st.columns(2)
+            with rule_col1:
+                rule_name_input = st.text_input("Rule Name:")
+                rule_column_input = st.text_input("Column Tested")
+                rule_category_input = st.selectbox("Category", ["Completeness","Uniqueness","Validity","Consistency","Accuracy"])
+            with rule_col2:
+                rule_description_input = st.text_input("Description:")
+                rule_datasource_input = st.text_input("Data Source:", "SalesForce")
+                rule_sql_input = st.text_input("Rule SQL:")
+
 
 
     with dq_by_db:
