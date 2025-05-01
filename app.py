@@ -210,12 +210,36 @@ def main():
                 rule_name_input = st.text_input("Rule Name:")
                 rule_column_input = st.text_input("Column Tested")
                 rule_category_input = st.selectbox("Category", ["Completeness","Uniqueness","Validity","Consistency","Accuracy"])
+                rule_accpt_perc_input = st.text_input("Acceptance Threshold")
             with rule_col2:
                 rule_description_input = st.text_input("Description:")
                 rule_datasource_input = st.text_input("Data Source:", "SalesForce")
                 rule_sql_input = st.text_input("Rule SQL:")
+            
+            import uuid
+            rule_id = str(uuid.uuid4())
+            new_rule = {
+                            "RULE_ID": rule_id,
+                            "RULE_NAME": rule_name_input,
+                            "RULE_DESCRIPTION": rule_description_input,
+                            "RULE_CATEGORY": rule_category_input,
+                            "DATABASE_NAME": selected_database,
+                            "SCHEMA_NAME": selected_schema,
+                            "TABLE_NAME": selected_table,
+                            "DATA_SOURCE": rule_datasource_input,
+                            "RULE_SQL": rule_sql_input,
+                            "ACCEPTED_THRESHOLD_PCT": 100.0,  # or get from another input field
+                            "IS_ACTIVE": True,
+                            "CREATED_AT": datetime.now(),
+                            "COLUMN_TESTED": rule_column_input,
+                            "RESULT": None,
+                            "LAST_RUN": None,
+                            "STATUS": None
+                        }
+            df = session.create_dataframe([new_rule])
+            df.write.mode("append").save_as_table("DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES")
 
-
+            st.success(f"Rule '{rule_name_input}' added successfully.")            
 
     with dq_by_db:
         st.write("Coming Soon")
