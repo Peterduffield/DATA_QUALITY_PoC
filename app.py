@@ -205,8 +205,8 @@ def main():
 
             st.divider()
 
-            st.write("##Create a New Data Quality Rule for {selected_table}") 
-               
+            st.subheader("Create a New Data Quality Rule for {selected_table}") 
+
 
     with dq_by_db:
         st.write("Coming Soon")
