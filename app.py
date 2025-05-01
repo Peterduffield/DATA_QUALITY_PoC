@@ -2,6 +2,7 @@ from snowflake.snowpark import Session
 import streamlit as st
 import pandas as pd
 import datetime
+import uuid
 
 # Create a function to connect using Snowpark
 SF_CREDENTIALS = {
@@ -216,30 +217,35 @@ def main():
                 rule_datasource_input = st.text_input("Data Source:", "SalesForce")
                 rule_sql_input = st.text_input("Rule SQL:")
             
-            import uuid
-            rule_id = str(uuid.uuid4())
-            new_rule = {
-                            "RULE_ID": rule_id,
-                            "RULE_NAME": rule_name_input,
-                            "RULE_DESCRIPTION": rule_description_input,
-                            "RULE_CATEGORY": rule_category_input,
-                            "DATABASE_NAME": selected_database,
-                            "SCHEMA_NAME": selected_schema,
-                            "TABLE_NAME": selected_table,
-                            "DATA_SOURCE": rule_datasource_input,
-                            "RULE_SQL": rule_sql_input,
-                            "ACCEPTED_THRESHOLD_PCT": 100.0,  # or get from another input field
-                            "IS_ACTIVE": True,
-                            "CREATED_AT": datetime.datetime.now(),
-                            "COLUMN_TESTED": rule_column_input,
-                            "RESULT": None,
-                            "LAST_RUN": None,
-                            "STATUS": None
-                        }
-            df = session.create_dataframe([new_rule])
-            df.write.mode("append").save_as_table("DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES")
+            if st.button("➕ Add Rule to Table"):
+                try:
 
-            st.success(f"Rule '{rule_name_input}' added successfully.")            
+                    rule_id = str(uuid.uuid4())
+                    new_rule = {
+                                    "RULE_ID": rule_id,
+                                    "RULE_NAME": rule_name_input,
+                                    "RULE_DESCRIPTION": rule_description_input,
+                                    "RULE_CATEGORY": rule_category_input,
+                                    "DATABASE_NAME": selected_database,
+                                    "SCHEMA_NAME": selected_schema,
+                                    "TABLE_NAME": selected_table,
+                                    "DATA_SOURCE": rule_datasource_input,
+                                    "RULE_SQL": rule_sql_input,
+                                    "ACCEPTED_THRESHOLD_PCT": 100.0,  # or get from another input field
+                                    "IS_ACTIVE": True,
+                                    "CREATED_AT": datetime.datetime.now(),
+                                    "COLUMN_TESTED": rule_column_input,
+                                    "RESULT": None,
+                                    "LAST_RUN": None,
+                                    "STATUS": None
+                                }
+                    df = session.create_dataframe([new_rule])
+                    df.write.mode("append").save_as_table("DATA_GOV_POC.DATA_QUALITY_POC.DATA_QUALITY_RULES")
+
+                    st.success(f"✅ Rule '{rule_name_input}' added successfully.")
+                except Exception as e:
+                    st.error(f"❌ Failed to add rule: {e}")
+
 
     with dq_by_db:
         st.write("Coming Soon")
