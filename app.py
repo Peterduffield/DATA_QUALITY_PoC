@@ -204,8 +204,12 @@ def main():
                 st.dataframe(dq_meta_table, hide_index=True)
 
             st.divider()
-
             st.subheader(f"Create a New Data Quality Rule for {selected_table}") 
+            rule_name_input = st.text_input("Rule Name:")
+            rule_description_input = st.text_input("Description:")
+            rule_category_input = st.selectbox("Category", ["Completeness","Uniqueness","Validity","Consistency","Accuracy"])
+            rule_sql_input = st.text_input("Rule SQL:")
+            
 
 
     with dq_by_db:
